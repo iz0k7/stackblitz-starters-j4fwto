@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>待辦事項列表</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #e9ecef;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+        margin-bottom: 20px;
+      }
+
+      #todoContainer {
+        max-width: 600px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type='text'],
+      input[type='date'],
+      input[type='time'] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.1);
+      }
+
+      button {
+        padding: 10px; /* 統一按鈕的內邊距 */
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        margin-bottom: 10px;
+        font-size: 16px; /* 統一字體大小 */
+        box-sizing: border-box; /* 確保按鈕的大小包括內邊距 */
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .todo-item {
+        display: flex;
+        align-items: center;
+        padding: 15px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        margin-bottom: 10px;
+        background-color: #f8f9fa;
+        transition: background-color 0.2s;
+      }
+
+      .todo-item.completed {
+        background-color: #e9ffe9;
+        color: #6c757d;
+      }
+
+      .todo-item:hover {
+        background-color: #f1f1f1;
+      }
+
+      .delete-btn,
+      .restore-btn {
+        background-color: #dc3545;
+        border: none;
+        color: white;
+        padding: 10px; /* 統一按鈕的內邊距 */
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 16px; /* 統一字體大小 */
+        margin-left: 10px; /* 增加刪除按鈕與其他按鈕之間的間距 */
+      }
+
+      .delete-btn:hover,
+      .restore-btn:hover {
+        background-color: #c82333;
+      }
+
+      .edit-btn {
+        background-color: #ffc107;
+        border: none;
+        color: white;
+        padding: 10px; /* 統一按鈕的內邊距 */
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        font-size: 16px; /* 統一字體大小 */
+        margin-left: 10px; /* 增加編輯按鈕與其他按鈕之間的間距 */
+      }
+
+      .edit-btn:hover {
+        background-color: #e0a800;
+      }
+
+      .completed-list {
+        margin-top: 20px;
+        border-top: 2px solid #007bff;
+        padding-top: 10px;
+      }
+
+      .completed-list h2 {
+        margin-top: 0;
+        color: #333;
+      }
+
+      .completed-label {
+        margin-left: 10px;
+        color: #28a745; /* 已完成的顏色 */
+        font-weight: bold;
+      }
+
+      /* 調整複選框的大小 */
+      input[type='checkbox'] {
+        width: 20px;
+        height: 20px;
+        margin-right: 10px; /* 增加複選框和文本之間的間距 */
+      }
+    </style>
+  </head>
+
+  <body>
+    <div id="todoContainer">
+      <h1>待辦事項列表</h1>
+      <input type="text" id="todoInput" placeholder="輸入待辦事項" />
+      <input type="date" id="dueDateInput" />
+      <!-- 新增日期選擇器 -->
+      <input type="time" id="dueTimeInput" />
+      <!-- 新增時間選擇器 -->
+      <button onclick="addTodo()">添加</button>
+      <div id="todoList"></div>
+
+      <div class="completed-list">
+        <h2>已完成的待辦事項</h2>
+        <div id="completedList"></div>
+      </div>
+    </div>
+
+    <script>
+      const todos = [];
+      let editIndex = -1; // 用於跟踪編輯的待辦事項索引
+
+      function addTodo() {
+        const todoInput = document.getElementById('todoInput');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const dueTimeInput = document.getElementById('dueTimeInput');
+        const todoText = todoInput.value.trim();
+        const dueDate = dueDateInput.value; // 獲取截止日期
+        const dueTime = dueTimeInput.value; // 獲取截止時間
+
+        if (todoText) {
+          if (editIndex === -1) {
+            // 如果沒有在編輯，則添加新待辦事項
+            todos.push({
+              text: todoText,
+              completed: false,
+              dueDate: dueDate,
+              dueTime: dueTime,
+            });
+          } else {
+            // 如果在編輯，則更新待辦事項
+            todos[editIndex].text = todoText;
+            todos[editIndex].dueDate = dueDate; // 更新截止日期
+            todos[editIndex].dueTime = dueTime; // 更新截止時間
+            editIndex = -1; // 重置編輯索引
+          }
+          todoInput.value = '';
+          dueDateInput.value = ''; // 清空截止日期
+          dueTimeInput.value = ''; // 清空截止時間
+          renderTodos();
+        }
+      }
+
+      function renderTodos() {
+        const todoList = document.getElementById('todoList');
+        const completedList = document.getElementById('completedList');
+        todoList.innerHTML = '';
+        completedList.innerHTML = '';
+
+        todos.forEach((todo, index) => {
+          if (!todo.completed) {
+            // 只顯示未完成的待辦事項
+            const todoItem = document.createElement('div');
+            todoItem.className = 'todo-item';
+
+            const todoText = document.createElement('span');
+            todoText.innerText = `${todo.text} (截止: ${todo.dueDate || '無'} ${
+              todo.dueTime || ''
+            })`; // 顯示截止日期和時間
+
+            // 新增已完成的選項（複選框）
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.checked = todo.completed;
+            checkbox.onchange = () => toggleComplete(index);
+
+            const deleteButton = document.createElement('button');
+            deleteButton.innerText = '刪除';
+            deleteButton.className = 'delete-btn';
+            deleteButton.onclick = () => deleteTodo(index);
+
+            const editButton = document.createElement('button');
+            editButton.innerText = '編輯';
+            editButton.className = 'edit-btn';
+            editButton.onclick = () => editTodo(index);
+
+            const completedLabel = document.createElement('span');
+            completedLabel.className = 'completed-label';
+            completedLabel.innerText = '已完成';
+            completedLabel.style.display = 'none'; // 初始隱藏
+
+            todoItem.appendChild(checkbox); // 添加複選框到待辦事項
+            todoItem.appendChild(todoText);
+            todoItem.appendChild(completedLabel); // 添加已完成標籤
+            todoItem.appendChild(editButton);
+            todoItem.appendChild(deleteButton);
+            todoList.appendChild(todoItem);
+          }
+        });
+
+        // 渲染已完成的待辦事項
+        todos.forEach((todo, index) => {
+          if (todo.completed) {
+            const completedItem = document.createElement('div');
+            completedItem.className = 'todo-item completed';
+
+            const completedText = document.createElement('span');
+            completedText.innerText = `${todo.text} (截止: ${
+              todo.dueDate || '無'
+            } ${todo.dueTime || ''})`;
+
+            const deleteCompletedButton = document.createElement('button');
+            deleteCompletedButton.innerText = '刪除';
+            deleteCompletedButton.className = 'delete-btn';
+            deleteCompletedButton.onclick = () => deleteCompletedTodo(index);
+
+            completedItem.appendChild(completedText);
+            completedItem.appendChild(deleteCompletedButton);
+            completedList.appendChild(completedItem);
+          }
+        });
+
+        // 更新已完成標籤的顯示狀態
+        updateCompletedLabels();
+      }
+
+      function toggleComplete(index) {
+        todos[index].completed = true; // 設置為已完成
+        renderTodos();
+      }
+
+      function updateCompletedLabels() {
+        const todoItems = document.querySelectorAll('.todo-item');
+
+        todoItems.forEach((item, index) => {
+          const checkbox = item.querySelector('input[type="checkbox"]');
+          const completedLabel = item.querySelector('.completed-label');
+
+          if (checkbox && completedLabel) {
+            completedLabel.style.display = checkbox.checked ? 'inline' : 'none'; // 根據複選框狀態顯示或隱藏
+          }
+        });
+      }
+
+      function deleteTodo(index) {
+        todos.splice(index, 1);
+        renderTodos();
+      }
+
+      function deleteCompletedTodo(index) {
+        todos.splice(index, 1);
+        renderTodos();
+      }
+
+      function editTodo(index) {
+        const todoInput = document.getElementById('todoInput');
+        const dueDateInput = document.getElementById('dueDateInput');
+        const dueTimeInput = document.getElementById('dueTimeInput');
+        todoInput.value = todos[index].text; // 將待辦事項文本填入輸入框
+        dueDateInput.value = todos[index].dueDate; // 將截止日期填入日期選擇器
+        dueTimeInput.value = todos[index].dueTime; // 將截止時間填入時間選擇器
+        editIndex = index; // 設置編輯索引
+      }
+    </script>
+  </body>
+</html>

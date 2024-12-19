@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="zh">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>註冊與登入</title>
+    <style>
+      body {
+        font-family: 'Arial', sans-serif;
+        margin: 0;
+        padding: 20px;
+        background-color: #e9ecef;
+      }
+
+      h1 {
+        text-align: center;
+        color: #333;
+      }
+
+      .container {
+        max-width: 400px;
+        margin: 0 auto;
+        background: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+      }
+
+      input[type='text'],
+      input[type='password'],
+      input[type='email'] {
+        width: calc(100% - 22px);
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ccc;
+        border-radius: 5px;
+      }
+
+      button {
+        padding: 10px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        transition: background-color 0.3s;
+        width: 100%;
+        margin-bottom: 10px;
+      }
+
+      button:hover {
+        background-color: #0056b3;
+      }
+
+      .toggle-link {
+        text-align: center;
+        margin-top: 10px;
+      }
+    </style>
+  </head>
+
+  <body>
+    <h1>帳戶管理</h1>
+
+    <!-- 註冊表單 -->
+    <div class="container" id="registerContainer">
+      <h2>註冊</h2>
+      <input type="text" id="registerUsername" placeholder="用戶名" required />
+      <input type="email" id="registerEmail" placeholder="電子郵件" required />
+      <input
+        type="password"
+        id="registerPassword"
+        placeholder="密碼"
+        required
+      />
+      <button onclick="register()">註冊</button>
+
+      <div class="toggle-link">
+        <span>已有帳戶？ <a href="#" onclick="toggleForms()">登入</a></span>
+      </div>
+    </div>
+
+    <!-- 登入表單 -->
+    <div class="container" id="loginContainer" style="display: none">
+      <h2>登入</h2>
+      <input type="text" id="loginUsername" placeholder="用戶名" required />
+      <input type="password" id="loginPassword" placeholder="密碼" required />
+      <button onclick="login()">登入</button>
+
+      <div class="toggle-link">
+        <span>沒有帳戶？ <a href="#" onclick="toggleForms()">註冊</a></span>
+      </div>
+    </div>
+
+    <script>
+      function toggleForms() {
+        const registerContainer = document.getElementById('registerContainer');
+        const loginContainer = document.getElementById('loginContainer');
+        registerContainer.style.display =
+          registerContainer.style.display === 'none' ? 'block' : 'none';
+        loginContainer.style.display =
+          loginContainer.style.display === 'none' ? 'block' : 'none';
+      }
+
+      function register() {
+        const username = document.getElementById('registerUsername').value;
+        const email = document.getElementById('registerEmail').value;
+        const password = document.getElementById('registerPassword').value;
+
+        const url =
+          'https://script.google.com/macros/s/AKfycbx0ITkwFkAcc5b3u0ItvoBrTyGunhOIeBrljSr_GitJ7R8Dm8tivCtC9O0g8fuf66QnrA/exec'; //
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `username=${encodeURIComponent(
+            username
+          )}&email=${encodeURIComponent(email)}&password=${encodeURIComponent(
+            password
+          )}`,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.text();
+          })
+          .then((data) => {
+            alert('註冊成功！用戶名: ' + username);
+            // Optionally, automatically switch to login form
+            toggleForms();
+          })
+          .catch((error) => {
+            alert('註冊失敗：' + error.message);
+            console.error('錯誤:', error);
+          });
+      }
+
+      function login() {
+        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        const url = 'YOUR_APPS_SCRIPT_URL'; // Replace with your Apps Script URL
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `username=${encodeURIComponent(
+            username
+          )}&password=${encodeURIComponent(password)}`,
+        })
+          .then((response) => {
+            if (!response.ok) {
+              throw new Error('Network response was not ok');
+            }
+            return response.text();
+          })
+          .then((data) => {
+            alert('登入成功！用戶名: ' + username);
+            window.location.href = 'to_do_list.html'; // Redirect after login
+          })
+          .catch((error) => {
+            alert('登入失敗：' + error.message);
+            console.error('錯誤:', error);
+          });
+      }
+    </script>
+  </body>
+</html>
