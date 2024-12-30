@@ -113,7 +113,7 @@
 
         // 使用 fetch 發送 POST 請求到 Apps Script
         const url =
-          'https://script.google.com/a/macros/student.creativehk.edu.hk/s/AKfycbx0ITkwFkAcc5b3u0ItvoBrTyGunhOIeBrljSr_GitJ7R8Dm8tivCtC9O0g8fuf66QnrA/exec'; // 替換為你的 Apps Script URL
+        "https://script.google.com/macros/s/AKfycbyNxBJxoK5OKOKAC-ZagAWXSEGg37Kbg44Edr5tI3_wi51z4MorgRq72pv40fsVnSRZVA/exec?action=login"// 替換為你的 Apps Script URL
 
         fetch(url, {
           method: 'POST',
@@ -126,11 +126,12 @@
             'user@example.com'
           )}&password=${encodeURIComponent(password)}`,
         })
-          .then((response) => {
-            if (response.text() !== '登入成功') {
+        .then(async (response) => {
+            let res = await response.text()
+            if (res !== '登入成功') {
               throw new Error('網絡響應不正常');
             }
-            return response.text();
+            return res;
           })
           .then((data) => {
             alert('登入成功！用戶名: ' + username);
