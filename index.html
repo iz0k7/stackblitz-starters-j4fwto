@@ -104,15 +104,48 @@
         const password = document.getElementById('registerPassword').value;
 
         // 這裡可以添加 AJAX 請求來發送註冊資料到 Apps Script
-        alert(`註冊成功！用戶名: ${username}, 電子郵件: ${email}`);
+        const url =
+        "https://script.google.com/macros/s/AKfycbyNxBJxoK5OKOKAC-ZagAWXSEGg37Kbg44Edr5tI3_wi51z4MorgRq72pv40fsVnSRZVA/exec?action=register"// 替換為你的 Apps Script URL
+
+        fetch(url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded',
+          },
+          body: `username=${encodeURIComponent(
+            username
+          )}&email=${encodeURIComponent(
+            email
+          )}&password=${encodeURIComponent(password)}`,
+        })
+        .then(async (response) => {
+         
+            let res = await response.text()
+            
+            if (res !== '註冊成功') {
+              
+              throw new Error('網絡響應不正常');
+          
+            }
+            return res;
+          })
+          .then((data) => {
+            alert('註冊成功！用戶名: ' + username);
+            window.location.href = 'todolist.html';
+
+}).catch((error) => {
+            alert('註冊失敗！用戶名或密碼錯誤！：' + error.message);
+            console.error('錯誤:', error);
+          });        
+        // 使用 fetch 發送 POST 請求到 Apps Script
+       
       }
+      
+
+      
 
       function login() {
-        const username = document.getElementById('loginUsername').value;
-        const password = document.getElementById('loginPassword').value;
-
-        // 使用 fetch 發送 POST 請求到 Apps Script
-        const url =
+ const url =
         "https://script.google.com/macros/s/AKfycbyNxBJxoK5OKOKAC-ZagAWXSEGg37Kbg44Edr5tI3_wi51z4MorgRq72pv40fsVnSRZVA/exec?action=login"// 替換為你的 Apps Script URL
 
         fetch(url, {
@@ -140,7 +173,11 @@
           .catch((error) => {
             alert('登入失敗！用戶名或密碼錯誤！：' + error.message);
             console.error('錯誤:', error);
-          });
+          });        const username = document.getElementById('loginUsername').value;
+        const password = document.getElementById('loginPassword').value;
+
+        // 使用 fetch 發送 POST 請求到 Apps Script
+       
       }
     </script>
   </body>
